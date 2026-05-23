@@ -149,9 +149,6 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "📋 Data Detail",
 ])
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# TAB 1 — Peta
-# ═══════════════════════════════════════════════════════════════════════════════
 with tab1:
     st.subheader(f"Peta Persebaran Cluster — {metode}")
 
@@ -394,7 +391,7 @@ with tab3:
 
 ### 💡 Rekomendasi
 
-- Gunakan **K-Means** untuk **segmentasi tegas** dan alokasi program pertanian per wilayah secara langsung.  
+- Gunakan **K-Means** untuk **segmentasi** dan alokasi program pertanian per wilayah secara langsung.  
 - Gunakan **FCM** untuk memahami **seberapa kuat keterikatan** suatu daerah pada cluster tertentu, cocok untuk prioritasi program bertahap.
 """)
 

@@ -4,5 +4,5 @@ streamlit-folium
 pandas
 plotly
 numpy
-sklearn
+scikit-learn
 scikit-fuzzy

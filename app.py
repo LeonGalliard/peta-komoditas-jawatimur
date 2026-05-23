@@ -169,7 +169,7 @@ with tab1:
             "fillColor": CLUSTER_COLORS.get(cl, "#cccccc"),
             "color": "#333333",
             "weight": 1.2,
-            "fillOpacity": 0.72,
+            "fillOpacity": 0.2,
         }
 
     if metode == "K-Means":

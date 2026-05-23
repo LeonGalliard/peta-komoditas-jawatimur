@@ -1,0 +1,84 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "kabupaten": "Malang",
+        "cluster": 1,
+        "komoditas": "Jagung, Tebu",
+        "produksi": 12000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [112.45, -8.35],
+          [112.95, -8.35],
+          [112.95, -7.75],
+          [112.45, -7.75],
+          [112.45, -8.35]
+        ]]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "kabupaten": "Pasuruan",
+        "cluster": 2,
+        "komoditas": "Tebu, Padi",
+        "produksi": 18000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [112.70, -7.95],
+          [113.20, -7.95],
+          [113.20, -7.45],
+          [112.70, -7.45],
+          [112.70, -7.95]
+        ]]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "kabupaten": "Jember",
+        "cluster": 1,
+        "komoditas": "Tembakau, Kopi",
+        "produksi": 15000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [113.40, -8.45],
+          [114.10, -8.45],
+          [114.10, -7.80],
+          [113.40, -7.80],
+          [113.40, -8.45]
+        ]]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "kabupaten": "Banyuwangi",
+        "cluster": 0,
+        "komoditas": "Padi, Kopi",
+        "produksi": 10000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [114.00, -8.70],
+          [114.50, -8.70],
+          [114.50, -7.90],
+          [114.00, -7.90],
+          [114.00, -8.70]
+        ]]
+      }
+    }
+  ]
+}

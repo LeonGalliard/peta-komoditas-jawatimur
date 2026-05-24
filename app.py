@@ -142,11 +142,8 @@ st.markdown(
     f"**{len(komoditas_cols)} komoditas** menggunakan **K-Means** dan **Fuzzy C-Means**."
 )
 
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, = st.tabs([
     "🗺️ Peta Cluster",
-    "📊 Analisis Cluster",
-    "⚖️ Perbandingan Metode",
-    "📋 Data Detail",
 ])
 
 with tab1:
@@ -229,186 +226,186 @@ with tab1:
     )
     st.plotly_chart(fig_pca, use_container_width=True)
 
-with tab2:
-    st.subheader(f"Analisis Profil Cluster — {metode}")
+# with tab2:
+#     st.subheader(f"Analisis Profil Cluster — {metode}")
 
-    for c in range(3):
-        members = result_df[result_df[cluster_col] == c]["Kabupaten_Kota"].tolist()
-        top5    = mean_data.loc[c].sort_values(ascending=False).head(5)
-        bot3    = mean_data.loc[c].sort_values(ascending=True).head(3)
+#     for c in range(3):
+#         members = result_df[result_df[cluster_col] == c]["Kabupaten_Kota"].tolist()
+#         top5    = mean_data.loc[c].sort_values(ascending=False).head(5)
+#         bot3    = mean_data.loc[c].sort_values(ascending=True).head(3)
 
-        icon = icons[c % len(icons)]
-        with st.expander(
-            f"{icon} Cluster {c} — {len(members)} Kab/Kota",
-            expanded=(c == 0)
-        ):
-            col_l, col_r = st.columns([1, 1])
+#         icon = icons[c % len(icons)]
+#         with st.expander(
+#             f"{icon} Cluster {c} — {len(members)} Kab/Kota",
+#             expanded=(c == 0)
+#         ):
+#             col_l, col_r = st.columns([1, 1])
 
-            with col_l:
-                st.markdown("**Anggota:**")
-                st.write(", ".join(members))
-                st.markdown("**5 Komoditas Unggulan:**")
-                for kom, val in top5.items():
-                    st.markdown(f"- {kom}: `{val:,.0f}`")
-                st.markdown("**3 Komoditas Terendah:**")
-                for kom, val in bot3.items():
-                    st.markdown(f"- {kom}: `{val:,.0f}`")
+#             with col_l:
+#                 st.markdown("**Anggota:**")
+#                 st.write(", ".join(members))
+#                 st.markdown("**5 Komoditas Unggulan:**")
+#                 for kom, val in top5.items():
+#                     st.markdown(f"- {kom}: `{val:,.0f}`")
+#                 st.markdown("**3 Komoditas Terendah:**")
+#                 for kom, val in bot3.items():
+#                     st.markdown(f"- {kom}: `{val:,.0f}`")
 
-            with col_r:
-                fig_bar = px.bar(
-                    x=top5.values, y=top5.index,
-                    orientation="h",
-                    color_discrete_sequence=[CLUSTER_COLORS[c]],
-                    labels={"x": "Rata-rata Produksi", "y": "Komoditas"},
-                    title=f"Top 5 Komoditas — Cluster {c}",
-                )
-                fig_bar.update_layout(height=300, template="plotly_white", showlegend=False)
-                st.plotly_chart(fig_bar, use_container_width=True)
+#             with col_r:
+#                 fig_bar = px.bar(
+#                     x=top5.values, y=top5.index,
+#                     orientation="h",
+#                     color_discrete_sequence=[CLUSTER_COLORS[c]],
+#                     labels={"x": "Rata-rata Produksi", "y": "Komoditas"},
+#                     title=f"Top 5 Komoditas — Cluster {c}",
+#                 )
+#                 fig_bar.update_layout(height=300, template="plotly_white", showlegend=False)
+#                 st.plotly_chart(fig_bar, use_container_width=True)
 
-    st.markdown("---")
-    st.subheader("Heatmap Rata-rata Komoditas per Cluster")
-    heat_df = mean_data.copy()
-    heat_df.index = [f"Cluster {chr(65+i)}" for i in heat_df.index]
-    heat_norm = (heat_df - heat_df.min()) / (heat_df.max() - heat_df.min() + 1e-9)
+#     st.markdown("---")
+#     st.subheader("Heatmap Rata-rata Komoditas per Cluster")
+#     heat_df = mean_data.copy()
+#     heat_df.index = [f"Cluster {chr(65+i)}" for i in heat_df.index]
+#     heat_norm = (heat_df - heat_df.min()) / (heat_df.max() - heat_df.min() + 1e-9)
 
-    fig_heat = px.imshow(
-        heat_norm, text_auto=False,
-        color_continuous_scale="RdYlGn", aspect="auto",
-        labels=dict(color="Nilai Relatif"),
-        title=f"Heatmap Nilai Relatif Komoditas — {metode}",
-    )
-    fig_heat.update_layout(height=300, template="plotly_white")
-    st.plotly_chart(fig_heat, use_container_width=True)
-    st.caption("Nilai dinormalisasi 0–1 antar cluster untuk setiap komoditas.")
+#     fig_heat = px.imshow(
+#         heat_norm, text_auto=False,
+#         color_continuous_scale="RdYlGn", aspect="auto",
+#         labels=dict(color="Nilai Relatif"),
+#         title=f"Heatmap Nilai Relatif Komoditas — {metode}",
+#     )
+#     fig_heat.update_layout(height=300, template="plotly_white")
+#     st.plotly_chart(fig_heat, use_container_width=True)
+#     st.caption("Nilai dinormalisasi 0–1 antar cluster untuk setiap komoditas.")
 
-    if metode == "Fuzzy C-Means (FCM)":
-        st.markdown("---")
-        st.subheader("Derajat Keanggotaan (Membership) FCM")
-        mem_df = result_df[["Kabupaten_Kota", "Membership_0", "Membership_1", "Membership_2"]].copy()
-        mem_df.columns = ["Kabupaten/Kota", "Cluster 0", "Cluster 1", "Cluster 2"]
-        mem_df = mem_df.sort_values("Kabupaten/Kota")
-        mem_melt = mem_df.melt(id_vars="Kabupaten/Kota", var_name="Cluster", value_name="Membership")
+#     if metode == "Fuzzy C-Means (FCM)":
+#         st.markdown("---")
+#         st.subheader("Derajat Keanggotaan (Membership) FCM")
+#         mem_df = result_df[["Kabupaten_Kota", "Membership_0", "Membership_1", "Membership_2"]].copy()
+#         mem_df.columns = ["Kabupaten/Kota", "Cluster 0", "Cluster 1", "Cluster 2"]
+#         mem_df = mem_df.sort_values("Kabupaten/Kota")
+#         mem_melt = mem_df.melt(id_vars="Kabupaten/Kota", var_name="Cluster", value_name="Membership")
 
-        fig_mem = px.bar(
-            mem_melt, x="Kabupaten/Kota", y="Membership", color="Cluster",
-            color_discrete_map={"Cluster 0": "#e74c3c", "Cluster 1": "#2ecc71", "Cluster 2": "#3498db"},
-            title="Derajat Keanggotaan Tiap Kabupaten/Kota (FCM)",
-            barmode="stack",
-        )
-        fig_mem.update_layout(
-            height=420, template="plotly_white",
-            xaxis_tickangle=-45,
-            legend=dict(orientation="h", yanchor="bottom", y=1.02),
-        )
-        st.plotly_chart(fig_mem, use_container_width=True)
-        st.caption(
-            "Setiap daerah memiliki derajat keanggotaan ke semua cluster (total = 1). "
-            "Semakin tinggi nilai suatu cluster, semakin kuat keanggotaannya."
-        )
+#         fig_mem = px.bar(
+#             mem_melt, x="Kabupaten/Kota", y="Membership", color="Cluster",
+#             color_discrete_map={"Cluster 0": "#e74c3c", "Cluster 1": "#2ecc71", "Cluster 2": "#3498db"},
+#             title="Derajat Keanggotaan Tiap Kabupaten/Kota (FCM)",
+#             barmode="stack",
+#         )
+#         fig_mem.update_layout(
+#             height=420, template="plotly_white",
+#             xaxis_tickangle=-45,
+#             legend=dict(orientation="h", yanchor="bottom", y=1.02),
+#         )
+#         st.plotly_chart(fig_mem, use_container_width=True)
+#         st.caption(
+#             "Setiap daerah memiliki derajat keanggotaan ke semua cluster (total = 1). "
+#             "Semakin tinggi nilai suatu cluster, semakin kuat keanggotaannya."
+#         )
 
-with tab3:
-    st.subheader("⚖️ Perbandingan K-Means vs Fuzzy C-Means")
+# with tab3:
+#     st.subheader("⚖️ Perbandingan K-Means vs Fuzzy C-Means")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("### 🔵 K-Means")
-        m1, m2 = st.columns(2)
-        m1.metric("Silhouette Score", f"{metrics['sil_k']:.4f}", help="Semakin tinggi semakin baik (maks 1.0)")
-        m2.metric("Davies-Bouldin Index", f"{metrics['dbi_k']:.4f}", help="Semakin rendah semakin baik (min 0)")
-        if metrics["sil_k"] > metrics["sil_f"]:
-            st.success("✅ Silhouette lebih tinggi dari FCM")
-        if metrics["dbi_k"] < metrics["dbi_f"]:
-            st.success("✅ Davies-Bouldin lebih rendah dari FCM")
+#     col1, col2 = st.columns(2)
+#     with col1:
+#         st.markdown("### 🔵 K-Means")
+#         m1, m2 = st.columns(2)
+#         m1.metric("Silhouette Score", f"{metrics['sil_k']:.4f}", help="Semakin tinggi semakin baik (maks 1.0)")
+#         m2.metric("Davies-Bouldin Index", f"{metrics['dbi_k']:.4f}", help="Semakin rendah semakin baik (min 0)")
+#         if metrics["sil_k"] > metrics["sil_f"]:
+#             st.success("✅ Silhouette lebih tinggi dari FCM")
+#         if metrics["dbi_k"] < metrics["dbi_f"]:
+#             st.success("✅ Davies-Bouldin lebih rendah dari FCM")
 
-    with col2:
-        st.markdown("### 🟠 Fuzzy C-Means")
-        m3, m4 = st.columns(2)
-        m3.metric("Silhouette Score", f"{metrics['sil_f']:.4f}")
-        m4.metric("Davies-Bouldin Index", f"{metrics['dbi_f']:.4f}")
-        if metrics["sil_f"] > metrics["sil_k"]:
-            st.success("✅ Silhouette lebih tinggi dari K-Means")
-        if metrics["dbi_f"] < metrics["dbi_k"]:
-            st.success("✅ Davies-Bouldin lebih rendah dari K-Means")
+#     with col2:
+#         st.markdown("### 🟠 Fuzzy C-Means")
+#         m3, m4 = st.columns(2)
+#         m3.metric("Silhouette Score", f"{metrics['sil_f']:.4f}")
+#         m4.metric("Davies-Bouldin Index", f"{metrics['dbi_f']:.4f}")
+#         if metrics["sil_f"] > metrics["sil_k"]:
+#             st.success("✅ Silhouette lebih tinggi dari K-Means")
+#         if metrics["dbi_f"] < metrics["dbi_k"]:
+#             st.success("✅ Davies-Bouldin lebih rendah dari K-Means")
 
-    st.markdown("---")
-    fig_cmp = make_subplots(rows=1, cols=2, subplot_titles=["Silhouette Score ↑", "Davies-Bouldin Index ↓"])
-    for i, (method, sil, dbi, col) in enumerate([
-        ("K-Means", metrics["sil_k"], metrics["dbi_k"], "#3498db"),
-        ("FCM",     metrics["sil_f"], metrics["dbi_f"], "#e67e22"),
-    ]):
-        fig_cmp.add_trace(go.Bar(name=method, x=[method], y=[sil],
-                                  marker_color=col, showlegend=(i==0)), row=1, col=1)
-        fig_cmp.add_trace(go.Bar(name=method, x=[method], y=[dbi],
-                                  marker_color=col, showlegend=False), row=1, col=2)
-    fig_cmp.update_layout(height=350, template="plotly_white",
-                          title="Perbandingan Metrik Evaluasi Clustering", showlegend=False)
-    st.plotly_chart(fig_cmp, use_container_width=True)
+#     st.markdown("---")
+#     fig_cmp = make_subplots(rows=1, cols=2, subplot_titles=["Silhouette Score ↑", "Davies-Bouldin Index ↓"])
+#     for i, (method, sil, dbi, col) in enumerate([
+#         ("K-Means", metrics["sil_k"], metrics["dbi_k"], "#3498db"),
+#         ("FCM",     metrics["sil_f"], metrics["dbi_f"], "#e67e22"),
+#     ]):
+#         fig_cmp.add_trace(go.Bar(name=method, x=[method], y=[sil],
+#                                   marker_color=col, showlegend=(i==0)), row=1, col=1)
+#         fig_cmp.add_trace(go.Bar(name=method, x=[method], y=[dbi],
+#                                   marker_color=col, showlegend=False), row=1, col=2)
+#     fig_cmp.update_layout(height=350, template="plotly_white",
+#                           title="Perbandingan Metrik Evaluasi Clustering", showlegend=False)
+#     st.plotly_chart(fig_cmp, use_container_width=True)
 
-    st.markdown("---")
-    st.subheader("Perbedaan Pengelompokan Antar Metode")
-    diff_df = result_df[["Kabupaten_Kota", "Cluster_KMeans", "Cluster_FCM"]].copy()
-    diff_df["Cluster_KMeans"] = diff_df["Cluster_KMeans"].map(lambda x: f"Cluster {x}")
-    diff_df["Cluster_FCM"]    = diff_df["Cluster_FCM"].map(lambda x: f"Cluster {x}")
-    diff_df["Sama?"] = diff_df["Cluster_KMeans"] == diff_df["Cluster_FCM"]
-    diff_df.columns = ["Kabupaten/Kota", "K-Means", "FCM", "Sama?"]
-    sama_pct = diff_df["Sama?"].mean() * 100
+#     st.markdown("---")
+#     st.subheader("Perbedaan Pengelompokan Antar Metode")
+#     diff_df = result_df[["Kabupaten_Kota", "Cluster_KMeans", "Cluster_FCM"]].copy()
+#     diff_df["Cluster_KMeans"] = diff_df["Cluster_KMeans"].map(lambda x: f"Cluster {x}")
+#     diff_df["Cluster_FCM"]    = diff_df["Cluster_FCM"].map(lambda x: f"Cluster {x}")
+#     diff_df["Sama?"] = diff_df["Cluster_KMeans"] == diff_df["Cluster_FCM"]
+#     diff_df.columns = ["Kabupaten/Kota", "K-Means", "FCM", "Sama?"]
+#     sama_pct = diff_df["Sama?"].mean() * 100
 
-    st.metric("Tingkat Kesamaan Pengelompokan", f"{sama_pct:.1f}%")
-    st.dataframe(
-        diff_df.style.map(
-            lambda v: "background-color:#d5f5e3" if v is True else
-                      ("background-color:#fadbd8" if v is False else ""),
-            subset=["Sama?"]
-        ),
-        use_container_width=True, hide_index=True,
-    )
+#     st.metric("Tingkat Kesamaan Pengelompokan", f"{sama_pct:.1f}%")
+#     st.dataframe(
+#         diff_df.style.map(
+#             lambda v: "background-color:#d5f5e3" if v is True else
+#                       ("background-color:#fadbd8" if v is False else ""),
+#             subset=["Sama?"]
+#         ),
+#         use_container_width=True, hide_index=True,
+#     )
 
-    st.markdown("---")
-    st.subheader("📝 Interpretasi & Kesimpulan")
-    winner = "K-Means" if metrics["sil_k"] > metrics["sil_f"] else "Fuzzy C-Means"
-    sil_diff = abs(metrics["sil_k"] - metrics["sil_f"])
-    dbi_diff = abs(metrics["dbi_k"] - metrics["dbi_f"])
+#     st.markdown("---")
+#     st.subheader("📝 Interpretasi & Kesimpulan")
+#     winner = "K-Means" if metrics["sil_k"] > metrics["sil_f"] else "Fuzzy C-Means"
+#     sil_diff = abs(metrics["sil_k"] - metrics["sil_f"])
+#     dbi_diff = abs(metrics["dbi_k"] - metrics["dbi_f"])
 
-    st.markdown(f"""
-**Berdasarkan dua metrik evaluasi clustering:**
+#     st.markdown(f"""
+# **Berdasarkan dua metrik evaluasi clustering:**
 
-| Metrik | K-Means | FCM | Pemenang |
-|--------|---------|-----|----------|
-| Silhouette Score ↑ | {metrics['sil_k']:.4f} | {metrics['sil_f']:.4f} | {'K-Means ✅' if metrics['sil_k'] > metrics['sil_f'] else 'FCM ✅'} |
-| Davies-Bouldin Index ↓ | {metrics['dbi_k']:.4f} | {metrics['dbi_f']:.4f} | {'K-Means ✅' if metrics['dbi_k'] < metrics['dbi_f'] else 'FCM ✅'} |
+# | Metrik | K-Means | FCM | Pemenang |
+# |--------|---------|-----|----------|
+# | Silhouette Score ↑ | {metrics['sil_k']:.4f} | {metrics['sil_f']:.4f} | {'K-Means ✅' if metrics['sil_k'] > metrics['sil_f'] else 'FCM ✅'} |
+# | Davies-Bouldin Index ↓ | {metrics['dbi_k']:.4f} | {metrics['dbi_f']:.4f} | {'K-Means ✅' if metrics['dbi_k'] < metrics['dbi_f'] else 'FCM ✅'} |
 
-### 🏆 Kesimpulan
+# ### 🏆 Kesimpulan
 
-**{winner}** menghasilkan cluster yang lebih baik untuk dataset komoditas Jawa Timur ini.
+# **{winner}** menghasilkan cluster yang lebih baik untuk dataset komoditas Jawa Timur ini.
 
-- **Silhouette Score K-Means ({metrics['sil_k']:.4f})** {'lebih tinggi' if metrics['sil_k'] > metrics['sil_f'] else 'lebih rendah'} dari FCM ({metrics['sil_f']:.4f}), selisih {sil_diff:.4f} — cluster K-Means lebih **kompak dan terpisah** satu sama lain.
+# - **Silhouette Score K-Means ({metrics['sil_k']:.4f})** {'lebih tinggi' if metrics['sil_k'] > metrics['sil_f'] else 'lebih rendah'} dari FCM ({metrics['sil_f']:.4f}), selisih {sil_diff:.4f} — cluster K-Means lebih **kompak dan terpisah** satu sama lain.
 
-- **Davies-Bouldin K-Means ({metrics['dbi_k']:.4f})** {'lebih rendah' if metrics['dbi_k'] < metrics['dbi_f'] else 'lebih tinggi'} dari FCM ({metrics['dbi_f']:.4f}), selisih {dbi_diff:.4f} — rata-rata jarak intra-cluster lebih kecil relatif terhadap jarak antar cluster.
+# - **Davies-Bouldin K-Means ({metrics['dbi_k']:.4f})** {'lebih rendah' if metrics['dbi_k'] < metrics['dbi_f'] else 'lebih tinggi'} dari FCM ({metrics['dbi_f']:.4f}), selisih {dbi_diff:.4f} — rata-rata jarak intra-cluster lebih kecil relatif terhadap jarak antar cluster.
 
-- **FCM** tetap memiliki keunggulan berupa **derajat keanggotaan fuzzy** — daerah yang berada di perbatasan cluster tidak dipaksakan masuk satu kelompok, sehingga lebih mencerminkan kondisi nyata yang abu-abu.
+# - **FCM** tetap memiliki keunggulan berupa **derajat keanggotaan fuzzy** — daerah yang berada di perbatasan cluster tidak dipaksakan masuk satu kelompok, sehingga lebih mencerminkan kondisi nyata yang abu-abu.
 
-- Tingkat kesamaan pengelompokan kedua metode adalah **{sama_pct:.1f}%**, yang berarti {'banyak' if sama_pct < 60 else 'sebagian'} perbedaan hasil pengelompokan yang perlu diperhatikan dalam pengambilan keputusan.
+# - Tingkat kesamaan pengelompokan kedua metode adalah **{sama_pct:.1f}%**, yang berarti {'banyak' if sama_pct < 60 else 'sebagian'} perbedaan hasil pengelompokan yang perlu diperhatikan dalam pengambilan keputusan.
 
-### 💡 Rekomendasi
+# ### 💡 Rekomendasi
 
-- Gunakan **K-Means** untuk **segmentasi** dan alokasi program pertanian per wilayah secara langsung.  
-- Gunakan **FCM** untuk memahami **seberapa kuat keterikatan** suatu daerah pada cluster tertentu, cocok untuk prioritasi program bertahap.
-""")
+# - Gunakan **K-Means** untuk **segmentasi** dan alokasi program pertanian per wilayah secara langsung.  
+# - Gunakan **FCM** untuk memahami **seberapa kuat keterikatan** suatu daerah pada cluster tertentu, cocok untuk prioritasi program bertahap.
+# """)
 
-with tab4:
-    st.subheader("📋 Data Lengkap Hasil Clustering")
+# with tab4:
+#     st.subheader("📋 Data Lengkap Hasil Clustering")
 
-    show_df = result_df[["Kabupaten_Kota", "Cluster_KMeans", "Cluster_FCM"] + komoditas_cols].copy()
-    show_df["Cluster_KMeans"] = show_df["Cluster_KMeans"].map(lambda x: f"Cluster {x}")
-    show_df["Cluster_FCM"]    = show_df["Cluster_FCM"].map(lambda x: f"Cluster {x}")
-    show_df.columns = ["Kabupaten/Kota", "K-Means", "FCM"] + komoditas_cols
+#     show_df = result_df[["Kabupaten_Kota", "Cluster_KMeans", "Cluster_FCM"] + komoditas_cols].copy()
+#     show_df["Cluster_KMeans"] = show_df["Cluster_KMeans"].map(lambda x: f"Cluster {x}")
+#     show_df["Cluster_FCM"]    = show_df["Cluster_FCM"].map(lambda x: f"Cluster {x}")
+#     show_df.columns = ["Kabupaten/Kota", "K-Means", "FCM"] + komoditas_cols
 
-    filter_col = "K-Means" if metode == "K-Means" else "FCM"
-    filter_metode = st.selectbox("Filter berdasarkan cluster:", ["Semua"] + [f"Cluster {c}" for c in [0, 1, 2]])
+#     filter_col = "K-Means" if metode == "K-Means" else "FCM"
+#     filter_metode = st.selectbox("Filter berdasarkan cluster:", ["Semua"] + [f"Cluster {c}" for c in [0, 1, 2]])
 
-    if filter_metode != "Semua":
-        show_df = show_df[show_df[filter_col] == filter_metode]
+#     if filter_metode != "Semua":
+#         show_df = show_df[show_df[filter_col] == filter_metode]
 
-    st.dataframe(show_df, use_container_width=True, hide_index=True)
-    csv = show_df.to_csv(index=False).encode("utf-8")
-    st.download_button("⬇️ Download CSV", csv, "hasil_clustering.csv", "text/csv")
+#     st.dataframe(show_df, use_container_width=True, hide_index=True)
+#     csv = show_df.to_csv(index=False).encode("utf-8")
+#     st.download_button("⬇️ Download CSV", csv, "hasil_clustering.csv", "text/csv")
